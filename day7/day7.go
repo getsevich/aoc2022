@@ -10,7 +10,7 @@ import (
 
 func main() {
 	file, _ := os.Open("input.txt")
-	result := checkStorage(bufio.NewScanner(file))
+	result := mapStorage(bufio.NewScanner(file))
 	fmt.Println("RES: ", result)
 }
 
@@ -39,7 +39,7 @@ func appendDir(cur *Dir, name string) *Dir {
 	return nil
 }
 
-func checkStorage(scanner *bufio.Scanner) int {
+func mapStorage(scanner *bufio.Scanner) int {
 	root := Dir{parent: nil, name: "root", size: 0}
 	cur := &root
 
@@ -65,40 +65,25 @@ func checkStorage(scanner *bufio.Scanner) int {
 		}
 	}
 
-	calcSize(&root)
-	var max int = root.size + 500000000
-	printDriveStruct_(&root, "", &max, 30000000-(70000000-root.size))
+	updateDirSize(&root)
+	var max int = root.size
+	getTargetDir(&root, &max, 30000000-(70000000-root.size))
 	return max
 }
 
-func printDriveStruct(cur *Dir, prefix string, maxCounter *int) { // just for fun
+func getTargetDir(cur *Dir, maxCounter *int, limit int) {
 	for _, child := range cur.children {
-		fmt.Println(prefix, child.name, child.size)
-		newPrefix := prefix + "—"
-
-		//if child.size <= 100000 {
-		*maxCounter += child.size
-		//}
-		printDriveStruct(child, newPrefix, maxCounter)
-	}
-}
-
-func printDriveStruct_(cur *Dir, prefix string, maxCounter *int, limit int) { // just for fun
-	for _, child := range cur.children {
-		fmt.Println(prefix, child.name, child.size)
-		newPrefix := prefix + "—"
-
 		if child.size >= limit && child.size < *maxCounter {
 			*maxCounter = child.size
 		}
-		printDriveStruct(child, newPrefix, maxCounter)
+		getTargetDir(child, maxCounter, limit)
 	}
 }
 
-func calcSize(cur *Dir) int {
+func updateDirSize(cur *Dir) int {
 	curSize := 0
 	for _, child := range cur.children {
-		curSize += calcSize(child)
+		curSize += updateDirSize(child)
 	}
 	cur.size += curSize
 	return cur.size
