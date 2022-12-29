@@ -65,9 +65,12 @@ func mapStorage(scanner *bufio.Scanner) int {
 		}
 	}
 
-	updateDirSize(&root)
+	const maxCapacity int = 70000000
+	const requiredCapacity int = 30000000
 	var max int = root.size
-	getTargetDir(&root, &max, 30000000-(70000000-root.size))
+
+	updateDirSize(&root)
+	getTargetDir(&root, &max, requiredCapacity-(maxCapacity-root.size))
 	return max
 }
 
